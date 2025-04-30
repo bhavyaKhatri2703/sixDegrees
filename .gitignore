@@ -2,3 +2,5 @@ my_env
 pages.csv
 pagelinks_clean.csv
 redirects.csv
+pages_fixed.csv
+backend/node_modules
