@@ -1,7 +1,7 @@
 import csv
 
 # Open the original CSV file for reading
-with open('/home/bhavya/.config/Neo4j Desktop/Application/relate-data/dbmss/dbms-7fff9049-bba6-4ccc-88e6-ffedafbe4710/import/pages.csv', 'r', newline='', encoding='utf-8') as infile:
+with open('pages.csv', 'r', newline='', encoding='utf-8') as infile:
     # Read the CSV file
     reader = csv.reader(infile)
     
@@ -15,6 +15,7 @@ with open('/home/bhavya/.config/Neo4j Desktop/Application/relate-data/dbmss/dbms
             for i in range(len(row)):
                 # Replace escaped quotes (\" -> "") correctly
                 row[i] = row[i].replace(r'\"', '"')
+                row[i] = row[i].replace('_',' ')
             
             # Write the fixed row to the new file
             writer.writerow(row)

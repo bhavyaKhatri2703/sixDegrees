@@ -4,3 +4,11 @@ pagelinks_clean.csv
 redirects.csv
 pages_fixed.csv
 backend/node_modules
+joined_output1.csv
+joined_output2.csv
+pagelinks.csv
+pages1.csv
+pages_fixed1.csv
+redirects_relations_fixed.csv
+redirects_relations.csv
+targetlinks.csv

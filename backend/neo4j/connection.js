@@ -7,31 +7,44 @@ const password = "bhavi123";
 const driver= neo4j.driver(url, neo4j.auth.basic(user, password));
 
 
-//  shortest distance 
-const shortestPathQuery = `
-  MATCH (start {id: $id1}), (end {id: $id2})
-  MATCH path = allShortestPaths((start)-[*]-(end))
-  RETURN path, length(path) AS distance
-`;
 
-// all paths
+const allShortestPaths = `MATCH (start:Page {id: $id1}), (end:Page {id: $id2})
+MATCH path = allShortestPaths((start)-[*]->(end))
+RETURN path
+`
 
-const allPathsQuery = `
-  MATCH (start {id: $id1}), (end {id: $id2})
-  MATCH path = (start)-[*]->(end)
-  RETURN path, length(path) AS distance
-  ORDER BY distance ASC
-`;
+function extractPath(segments)
+{
+    const path = []
+    path.push(segments[0].start.properties)
+    path.push(segments[0].end.properties)
+
+    for(let i = 1 ; i<segments.length ; i++)
+    {
+        path.push(segments[i].end.properties)
+    }
+
+    return path
+
+}
 
 async function getShortestPaths(start, end) {
     const result = await driver.executeQuery(
-      shortestPathQuery,
+      allShortestPaths,
       { id1: start, id2: end },
       { database: 'neo4j' }
     );
 
-    console.log(result)
-  
+    const allPaths = []
+
+    for(let i = 0 ; i<result.records.length ; i++)
+    {
+       let path = extractPath(result.records[i].get('path').segments)
+       allPaths.push(path)
+    }
+
+    return allPaths
+
   }
 
-  getShortestPaths("12","2633")
+ 
