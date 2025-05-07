@@ -1,0 +1,21 @@
+/* index.css or App.css */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: 'MyCustomFont';
+  src: url('/home/bhavya/Desktop/sixDegrees/frontend/src/assets/04B_30__.TTF') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.custom-font {
+  font-family: 'MyCustomFont', sans-serif;
+}
+
+
+
