@@ -3,41 +3,17 @@
 import { useEffect, useRef } from "react"
 import * as d3 from "d3"
 
-export default function GraphVisualizer() {
+export default function GraphVisualizer({data}) {
   const svgRef = useRef(null)
 
   useEffect(() => {
     if (!svgRef.current) return
 
-    // Sample graph data
-    const data = {
-      nodes: [
-        { id: "Node 1", group: 1 },
-        { id: "Node 2", group: 2 },
-        { id: "Node 3", group: 2 },
-        { id: "Node 4", group: 3 },
-        { id: "Node 5", group: 3 },
-        { id: "Node 6", group: 4 },
-      ],
-      links: [
-        { source: "Node 1", target: "Node 2", value: 1 },
-        { source: "Node 2", target: "Node 3", value: 1 },
-        { source: "Node 3", target: "Node 4", value: 1 },
-        { source: "Node 4", target: "Node 5", value: 1 },
-        { source: "Node 5", target: "Node 6", value: 1 },
-        { source: "Node 1", target: "Node 3", value: 1 },
-        { source: "Node 2", target: "Node 4", value: 1 },
-        { source: "Node 3", target: "Node 5", value: 1 },
-      ],
-    }
-
-    // Clear any existing SVG content
     d3.select(svgRef.current).selectAll("*").remove()
 
     const width = svgRef.current.clientWidth
     const height = svgRef.current.clientHeight
 
-    // Create the simulation with forces
     const simulation = d3
       .forceSimulation()
       .nodes(data.nodes)
@@ -46,23 +22,21 @@ export default function GraphVisualizer() {
         d3
           .forceLink(data.links)
           .id((d) => d.id)
-          .distance(100),
+          .distance(100)
       )
       .force("charge", d3.forceManyBody().strength(-300))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("x", d3.forceX(width / 2).strength(0.1))
       .force("y", d3.forceY(height / 2).strength(0.1))
 
-    // Create the SVG container
     const svg = d3.select(svgRef.current)
 
-    // Define arrow markers for the links
     svg
       .append("defs")
       .append("marker")
       .attr("id", "arrowhead")
       .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 25) // Position the arrow away from the node
+      .attr("refX", 25)
       .attr("refY", 0)
       .attr("orient", "auto")
       .attr("markerWidth", 6)
@@ -73,7 +47,6 @@ export default function GraphVisualizer() {
       .attr("fill", "#999")
       .style("stroke", "none")
 
-    // Create the links
     const link = svg
       .append("g")
       .attr("class", "links")
@@ -84,9 +57,8 @@ export default function GraphVisualizer() {
       .attr("stroke", "#999")
       .attr("stroke-opacity", 0.6)
       .attr("stroke-width", (d) => Math.sqrt(d.value))
-      .attr("marker-end", "url(#arrowhead)") // Add arrow to the end of the line
+      .attr("marker-end", "url(#arrowhead)")
 
-    // Create the nodes
     const node = svg
       .append("g")
       .attr("class", "nodes")
@@ -95,23 +67,20 @@ export default function GraphVisualizer() {
       .enter()
       .append("circle")
       .attr("r", (d, i) => {
-        // First and last nodes are bigger
-        if (i === 0 || i === data.nodes.length - 1) {
+        if (i === 0 || data.nodes[i].isLastNode) {
           return 15
         }
         return 10
       })
       .attr("fill", (d, i) => {
-        // First node is red, last node is green
         if (i === 0) return "#ff5555"
-        if (i === data.nodes.length - 1) return "#55dd55"
+        if (data.nodes[i].isLastNode) return "#55dd55"
         return "#6495ED"
       })
       .attr("stroke", "#fff")
       .attr("stroke-width", 1.5)
       .call(d3.drag().on("start", dragstarted).on("drag", dragged).on("end", dragended))
 
-    // Add labels to the nodes
     const text = svg
       .append("g")
       .attr("class", "labels")
@@ -125,7 +94,6 @@ export default function GraphVisualizer() {
       .attr("dy", 4)
       .attr("fill", "#333")
 
-    // Update positions on each tick of the simulation
     simulation.on("tick", () => {
       link
         .attr("x1", (d) => d.source.x)
@@ -138,7 +106,6 @@ export default function GraphVisualizer() {
       text.attr("x", (d) => d.x).attr("y", (d) => d.y)
     })
 
-    // Drag functions
     function dragstarted(event, d) {
       if (!event.active) simulation.alphaTarget(0.3).restart()
       d.fx = d.x
@@ -156,11 +123,10 @@ export default function GraphVisualizer() {
       d.fy = null
     }
 
-    // Cleanup function
     return () => {
       simulation.stop()
     }
-  }, [])
+  }, [data])
 
   return (
     <div className="w-[1000px] h-full bg-white rounded-lg shadow-lg mt-12 mb-6 p-4">

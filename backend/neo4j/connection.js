@@ -28,7 +28,7 @@ function extractPath(segments)
 
 }
 
-async function getShortestPaths(start, end) {
+export async function getShortestPaths(start, end) {
     const result = await driver.executeQuery(
       allShortestPaths,
       { id1: start, id2: end },
@@ -47,4 +47,6 @@ async function getShortestPaths(start, end) {
 
   }
 
- 
+  console.log(await getShortestPaths('27040','66890'))
+
+
