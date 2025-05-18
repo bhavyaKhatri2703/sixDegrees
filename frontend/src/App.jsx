@@ -4,18 +4,20 @@ import { useState } from "react"
 import "./App.css"
 import WikiSearchInput from "./WikiSearchInput"
 import GraphVisualizer from "./GraphVisualizer.jsx"
+import PathsGrid from "./PathsGrid.jsx"
 import axios from "axios"
 
 function App() {
   const [startPage, setStartPage] = useState(null)
   const [endPage, setEndPage] = useState(null)
-  const [graphData, setGraphData] = useState(null) 
-  const [isLoading, setIsLoading] = useState(false) 
+  const [graphData, setGraphData] = useState(null)
+  const [paths, setPaths] = useState([]) // Add state for paths
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleGoClick = async () => {
     if (startPage && endPage) {
       try {
-        setIsLoading(true) 
+        setIsLoading(true)
         const response = await axios.post("http://localhost:3000", {
           startPage: startPage,
           endPage: endPage,
@@ -23,9 +25,12 @@ function App() {
 
         console.log(response.data)
 
-     
-        const paths = response.data.result
-        const graph = convertPathsToGraph(paths)
+        // Store the paths data
+        const pathsData = response.data.result
+        setPaths(pathsData)
+
+        // Convert paths to graph data
+        const graph = convertPathsToGraph(pathsData)
         setGraphData(graph)
       } catch (error) {
         console.error(error)
@@ -38,16 +43,17 @@ function App() {
   }
 
   function convertPathsToGraph(paths) {
+    if (paths.length == 0) {
+      return null
+    }
     const nodeMap = new Map()
     const links = []
 
     let groupCounter = 1
 
-
     for (const path of paths) {
       for (let i = 0; i < path.length; i++) {
         const node = path[i]
-
 
         if (!nodeMap.has(node.id)) {
           nodeMap.set(node.id, {
@@ -70,9 +76,7 @@ function App() {
 
     const nodes = Array.from(nodeMap.values())
 
-  
     const lastNodeTitle = paths[paths.length - 1][paths[paths.length - 1].length - 1].title
-
 
     nodes.forEach((node) => {
       if (node.id === lastNodeTitle) {
@@ -107,7 +111,7 @@ function App() {
         </div>
 
         <button
-          onClick={handleGoClick} 
+          onClick={handleGoClick}
           className="relative w-[80px] h-[70px] rounded-full border-none outline-none cursor-pointer select-none touch-manipulation transition duration-300 outline outline-[10px] custom-outline-red"
         >
           <span className="absolute inset-0 rounded-full bg-[#a8323c]"></span>
@@ -116,7 +120,6 @@ function App() {
           </span>
         </button>
 
-        
         {isLoading && (
           <div className="mt-8 flex flex-col items-center">
             <div className="w-16 h-16 border-4 border-[#a8323c] border-t-[#D98324] rounded-full animate-spin"></div>
@@ -125,6 +128,9 @@ function App() {
         )}
 
         {!isLoading && graphData && <GraphVisualizer data={graphData} />}
+
+   
+        {!isLoading && paths.length > 0 && <PathsGrid paths={paths} />}
       </div>
     </>
   )
